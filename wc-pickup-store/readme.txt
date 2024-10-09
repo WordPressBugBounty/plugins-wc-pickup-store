@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/keylorcr
 Tags: ecommerce, e-commerce, store, local pickup, store pickup, woocommerce, local shipping, store post type, recoger en tienda
 Requires at least: 4.7
 Tested up to: 6.6.2
-Stable tag: 1.8.7
+Stable tag: 1.8.8
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,10 @@ View more information about tax handling in [this documentation](https://keylorm
 
 
 == Changelog ==
+= 1.8.8 =
+* Fix: Reported issue with title that was reseting to first store after selecting certain stores from dropdown on the Checkout in wps_store_get_store_admin
+* Fix: Reported issue of undefined class WC_PICKUP_STORE resolved in wps_store_shipping_method_init
+
 = 1.8.7 =
 * Improvement: Libraries for Bootstrap and Font Awesome are now not loading by default
 * Fix: Undeclared property $plugin_version in class WC_PICKUP_STORE
@@ -318,6 +322,9 @@ View more information about tax handling in [this documentation](https://keylorm
 
 
 == Upgrade Notice ==
+= 1.8.8 =
+* Fix: Reported issues of store selector on the Checkout and class WC_PICKUP_STORE initialization error
+
 = 1.8.5 =
 * New: Custom setting to override wps_store_select_first_option filter for dropdown first option text
 * Review: Compatibility with WP 6.2.0 and WC 7.6.1

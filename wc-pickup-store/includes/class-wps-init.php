@@ -12,7 +12,7 @@ add_filter('woocommerce_shipping_methods', 'wps_store_shipping_method');
 /**
  * Declare Shipping Method
  * 
- * @version 1.8.7
+ * @version 1.8.8
  * @since 1.x
  */
 function wps_store_shipping_method_init() {
@@ -287,13 +287,13 @@ function wps_store_shipping_method_init() {
 			}
 		}
 		new WC_PICKUP_STORE();
+		
+		/**
+		 * Returns the main instance for WC_PICKUP_STORE class
+		 */
+		function wps() {
+			return new WC_PICKUP_STORE();
+		}
 	}
 }
 add_action( 'init', 'wps_store_shipping_method_init' );
-
-/**
- * Returns the main instance for WC_PICKUP_STORE class
- */
-function wps() {
-	return new WC_PICKUP_STORE();
-}

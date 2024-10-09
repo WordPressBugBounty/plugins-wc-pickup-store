@@ -45,7 +45,7 @@ add_action( 'customize_register', 'wps_store_customize_options' );
 /**
  * Get Stores in admin customizer
  * 
- * @version 1.8.7
+ * @version 1.8.8
  * @since 1.x
  * 
  * @param bool $return_id		Set true to return array with store id as array key
@@ -80,7 +80,8 @@ function wps_store_get_store_admin( $return_id = false, $args = array(), $array_
 	$store_posts = get_posts( $args );
 	if ( $store_posts ) {
 		foreach ( $store_posts as $store_id ) {
-			$store_title = get_the_title( $store_id );
+			$post = get_post( $store_id );
+			$store_title = isset( $post->post_title ) ? $post->post_title : '';
 			if ( $array_keys ) {
 				$stores[] = array(
 					'id' => $store_id,
