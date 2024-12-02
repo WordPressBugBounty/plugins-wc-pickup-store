@@ -12,7 +12,7 @@ add_filter('woocommerce_shipping_methods', 'wps_store_shipping_method');
 /**
  * Declare Shipping Method
  * 
- * @version 1.8.8
+ * @version 1.8.9
  * @since 1.x
  */
 function wps_store_shipping_method_init() {
@@ -199,27 +199,42 @@ function wps_store_shipping_method_init() {
 			}
 	
 			/**
-			 * Get calculated costs based on flat/percentage cost type
+			 * Get calculated costs based on cost type settings
+			 * 
+			 * @version 1.8.9
+			 * @since 1.1.x
+			 * 
+			 * @param float 		$shipping_costs
+			 * @param bool 			$costs_on_method
+			 * @param null|WC_Order $order
+			 * 
+			 * @return float
 			 */
-			public function wps_get_calculated_costs($shipping_costs, $costs_on_method = false, $order = null)
+			public function wps_get_calculated_costs( $shipping_costs, $costs_on_method = false, $order = null )
 			{
-				$store_shipping_cost = (double) (!empty($shipping_costs) && $this->costs_per_store == 'yes') ? $shipping_costs : $this->costs;
-				if ( isset( $this->costs_type ) ) {
-					switch ($this->costs_type) {
+				$costs = 0;
+
+				if ( $this->costs_type != 'none' ) {
+					$is_valid_shipping_cost = ( ( $this->costs_per_store == 'yes' && !$costs_on_method ) || ( $this->costs_per_store == 'no' && $costs_on_method ) );
+					$store_shipping_cost = (float) ( !empty( $shipping_costs ) && $this->costs_per_store == 'yes' ) ? $shipping_costs : $this->costs;
+				
+					switch ( $this->costs_type ) {
 						case 'flat':
-							$costs = (($this->costs_per_store == 'yes' && !$costs_on_method) || ($this->costs_per_store == 'no' && $costs_on_method)) ? $store_shipping_cost : 0;
+							$costs = $is_valid_shipping_cost ? $store_shipping_cost : 0;
 						break;
 						case 'percentage':
-							$subtotal = !is_null($order) ? $order->get_subtotal() : WC()->cart->get_subtotal();
-							$subtotal = (double) apply_filters('wps_subtotal_for_store_cost', $subtotal);
-							$costs = (($this->costs_per_store == 'yes' && !$costs_on_method) || ($this->costs_per_store == 'no' && $costs_on_method)) ? ($subtotal * $store_shipping_cost) / 100 : 0;
+							$subtotal = !is_null( $order ) ? $order->get_subtotal() : WC()->cart->get_subtotal();
+							$subtotal = (float) apply_filters( 'wps_subtotal_for_store_cost', $subtotal, $order );
+							$costs = $is_valid_shipping_cost ? ( ( $subtotal * $store_shipping_cost ) / 100 ) : 0;
 						break;
-						default:
-							$costs = 0;
+						case 'cart_total_weight':
+							$cart_weight = WC()->cart->get_cart_contents_weight();
+
+							if ( $is_valid_shipping_cost && $cart_weight > 0 ) {
+								$costs = (float) ($cart_weight * $store_shipping_cost);
+							}
 						break;
 					}
-				} else {
-					$costs = 0;
 				}
 	
 				return apply_filters('wps_store_calculated_costs', $costs, $this->costs_type);
@@ -286,7 +301,6 @@ function wps_store_shipping_method_init() {
 				return $first_option;
 			}
 		}
-		new WC_PICKUP_STORE();
 		
 		/**
 		 * Returns the main instance for WC_PICKUP_STORE class
@@ -294,6 +308,7 @@ function wps_store_shipping_method_init() {
 		function wps() {
 			return new WC_PICKUP_STORE();
 		}
+		WPS();
 	}
 }
 add_action( 'init', 'wps_store_shipping_method_init' );

@@ -101,7 +101,7 @@ function wps_store_get_store_admin( $return_id = false, $args = array(), $array_
 /**
  * Save the custom field.
  * 
- * @version 1.8.6
+ * @version 1.8.9
  * @since 1.x
  * 
  * @param WC_Order $order
@@ -110,11 +110,18 @@ function wps_store_save_order_meta( $order ) {
 	$current_user = wp_get_current_user();
 	$user_id = $current_user->ID;
 
-	$store = isset( $_POST['shipping_pickup_stores'] ) ? $_POST['shipping_pickup_stores'] : '';
+	$store_name = isset( $_POST['shipping_pickup_stores'] ) ? esc_attr( $_POST['shipping_pickup_stores'] ) : false;
 
-	if ( $store ) {
-		update_user_meta( $user_id, '_shipping_pickup_stores', $store );
-		$order->add_meta_data( '_shipping_pickup_stores', $store );
+	if ( $store_name ) {
+		$store_id = wps_get_store_id_by_name( $store_name );
+
+		if ( $user_id > 0 ) {
+			update_user_meta( $user_id, '_shipping_pickup_stores', $store_name );
+			update_user_meta( $user_id, '_shipping_pickup_store_id', $store_id );
+		}
+
+		$order->add_meta_data( '_shipping_pickup_stores', $store_name );
+		$order->add_meta_data( '_shipping_pickup_store_id', $store_id );
 		// $order->save() is triggered from parent create_order method
 	}
 }
@@ -169,28 +176,6 @@ function wps_store_validate_checkout( $data ) {
 add_action('woocommerce_after_checkout_validation', 'wps_store_validate_checkout', 10, 2);
 
 /**
- * Add selected store to billing details, admin page
- * 
- * @version 1.8.6
- * @since 1.x
- * 
- * @param WC_Order $order
- */
-function wps_show_store_in_admin( $order ) {
-	$store = $order->get_meta( '_shipping_pickup_stores' );
-	
-	if ( !empty( $store ) ) {
-		?>
-		<p>
-			<strong class="title"><?php echo __('Pickup Store', 'wc-pickup-store') . ':' ?></strong>
-			<span class="data"><?= $store ?></span>
-		</p>
-		<?php
-	}
-}
-add_action('woocommerce_admin_order_data_after_billing_address', 'wps_show_store_in_admin');
-
-/**
  * Language
  */
 function wps_store_language_init() {
@@ -212,3 +197,62 @@ function wps_store_get_waze_icon($width = '') {
 function wps_no_stores_availables_message() {
 	return apply_filters('wps_no_stores_availables_message', __('There are not available stores. Please choose another shipping method.', 'wc-pickup-store'));
 }
+
+/**
+ * Shipping admin order fields
+ * 
+ * @version 1.8.9
+ * 
+ * @param array 	$fields
+ * @param WC_Order 	$order
+ * 
+ * @return array
+ */
+function wps_wc_admin_order_fields( $fields, $order ) {
+	if ( ! is_admin() ) {
+		return $fields;
+	}
+	$store_name = $order->get_meta( '_shipping_pickup_stores' );
+
+	if ( !empty( $store_name ) ) {
+		$get_stores = wps_store_get_store_admin( false );
+		$wps_admin_label = apply_filters( 'wps_store_checkout_label', WPS()->title );
+	
+		$fields['wps_store'] = array(
+			'type' => 'select',
+			'label' => $wps_admin_label,
+			'wrapper_class' => 'form-field-wide',
+			'options' => $get_stores,
+			'value' => $store_name,
+			'show'  => true,
+		);
+	}
+	
+	return $fields;
+}
+add_filter( 'woocommerce_admin_shipping_fields', 'wps_wc_admin_order_fields', 101, 2 );
+
+/**
+ * Update WPS store from admin order page
+ * 
+ * @version 1.8.9
+ * 
+ * @param int $order_id
+ * @param WC_Order $order
+ */
+function wps_wc_process_shop_order_meta( $order_id ) {
+	$order = wc_get_order( $order_id );
+	$store_name = isset( $_POST['_shipping_wps_store'] ) ? $_POST['_shipping_wps_store'] : false;
+	$old_store = $order->get_meta( '_shipping_pickup_stores' );
+
+	if ( $order && $store_name ) {
+		if ( $store_name != $old_store ) {
+			$order->update_meta_data( '_shipping_pickup_stores', $store_name );
+			$order->update_meta_data( '_shipping_pickup_store_id', wps_get_store_id_by_name( $store_name ) );
+			$order->add_order_note( sprintf( 'WPS edited from <strong>%1$s</strong> to <strong>%2$s</strong>.', $old_store, $store_name ) );
+			
+			$order->save();
+		}
+	}
+}
+add_action( 'woocommerce_process_shop_order_meta', 'wps_wc_process_shop_order_meta', 100 );

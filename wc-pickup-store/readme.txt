@@ -3,8 +3,8 @@ Contributors: keylorcr
 Donate link: https://www.paypal.me/keylorcr
 Tags: ecommerce, e-commerce, store, local pickup, store pickup, woocommerce, local shipping, store post type, recoger en tienda
 Requires at least: 4.7
-Tested up to: 6.6.2
-Stable tag: 1.8.8
+Tested up to: 6.7.1
+Stable tag: 1.8.9
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,17 @@ View more information about tax handling in [this documentation](https://keylorm
 
 
 == Changelog ==
+= 1.8.9 =
+* Deprecated: Function wps_show_store_in_admin from action woocommerce_admin_order_data_after_billing_address removed
+* Update: Chosen store id saved to user and order meta data in wps_store_save_order_meta
+* New: Function wps_wc_admin_order_fields from filter woocommerce_admin_shipping_fields to display stores selector in admin shipping details
+* New: Function wps_wc_process_shop_order_meta from action woocommerce_process_shop_order_meta to process store update on shop order update
+* New: Cost type selector from settings page loading using filter wps_costs_type_options
+* New: Shipping cost type calculation cart_total_weight added to wps_get_calculated_costs
+* Improvement: Store field description for shipping cost in wps_store_metabox_details_content
+* Improvement: Class WC_PICKUP_STORE initialization
+* Update: Check for compatibility with WP 6.7.1 and WC (Legacy) 9.4.2
+
 = 1.8.8 =
 * Fix: Reported issue with title that was reseting to first store after selecting certain stores from dropdown on the Checkout in wps_store_get_store_admin
 * Fix: Reported issue of undefined class WC_PICKUP_STORE resolved in wps_store_shipping_method_init
@@ -322,6 +333,10 @@ View more information about tax handling in [this documentation](https://keylorm
 
 
 == Upgrade Notice ==
+= 1.8.9 =
+* New: Shipping costs by cart weight
+* New: Admin store editor in order admin page
+
 = 1.8.8 =
 * Fix: Reported issues of store selector on the Checkout and class WC_PICKUP_STORE initialization error
 

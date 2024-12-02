@@ -101,7 +101,7 @@ function wps_store_misc_metabox_content( $post ) {
 /**
  * Metabox Store content
  * 
- * @version 1.8.6
+ * @version 1.8.9
  * @since 1.x
  * 
  * @param WP_Post $post
@@ -147,12 +147,23 @@ function wps_store_metabox_details_content( $post ) {
 			<input type="hidden" name="store_country" value="<?= $store_country ?>">
 		<?php } ?>
 
-		<?php if ( WPS()->costs_per_store == 'yes' ) { ?>
+		<?php
+		if ( WPS()->costs_per_store == 'yes' ) {
+			$weight_unit = get_option( 'woocommerce_weight_unit' );
+			$costs_type = WPS()->costs_type;
+			$message = sprintf(
+					/* translators: %s Cost type details */
+					__( 'Current cost type: %s', 'wc-pickup-store' ),
+					$costs_type == 'cart_total_weight' ? sprintf( '%1$s. <em>(%2$s)</em>',
+					$costs_type,
+					$weight_unit
+				) : $costs_type );
+			?>
 			<tr>
 				<th><?php _e('Store shipping cost', 'wc-pickup-store') ?></th>
 				<td>
 					<input type="text" name="store_shipping_cost" class="regular-text" value="<?= $store_shipping_cost ?>">
-					<p class="description"><?= __('Add shipping cost for this store.', 'wc-pickup-store') ?></p>
+					<p class="description"><?php printf( '%1$s %2$s', __('Add shipping cost for this store.', 'wc-pickup-store'), $message ) ?></p>
 			</tr>
 		<?php } ?>
 	

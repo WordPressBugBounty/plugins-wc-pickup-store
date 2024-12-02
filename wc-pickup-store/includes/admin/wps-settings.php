@@ -1,6 +1,13 @@
 <?php
+$costs_type_options = apply_filters( 'wps_costs_type_options', array(
+    'none' => __( 'None', 'wc-pickup-store' ),
+    'flat' => __( 'Flat Rate', 'wc-pickup-store' ),
+    'percentage' => __( 'Percentage', 'wc-pickup-store' ),
+    'cart_total_weight' => __( 'Cart Total Weight', 'wc-pickup-store' ),
+) );
+
 /**
- * @version 1.8.7
+ * @version 1.8.9
  * @since 1.x
  */
 $form_fields = array(
@@ -40,11 +47,7 @@ $form_fields = array(
         'class' => 'wc-enhanced-select',
         'description' => __( 'Choose a shipping costs type to calculate Pick up store costs. Use None to deactivate shipping store costs', 'wc-pickup-store' ),
         'default' => 'flat',
-        'options' => array(
-            'none' => __('None', 'wc-pickup-store'),
-            'flat' => __('Flat Rate', 'wc-pickup-store'),
-            'percentage' => __('Percentage', 'wc-pickup-store')
-        ),
+        'options' => $costs_type_options,
         'desc_tip'    => true
     ),
     'costs' => array(
