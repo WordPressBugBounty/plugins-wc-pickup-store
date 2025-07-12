@@ -3,11 +3,11 @@
  * Plugin Name: WC Pickup Store
  * Plugin URI: https://www.keylormendoza.com/plugins/wc-pickup-store/
  * Description: Allows you to set up a custom post type for stores available to use it as shipping method Local pickup in WooCommerce. It also allows your clients to choose an store on the Checkout page and also adds the store fields to the order details and email.
- * Version: 1.8.9
+ * Version: 1.8.10
  * Requires at least: 4.7
- * Tested up to: 6.7.1
+ * Tested up to: 6.8.1
  * WC requires at least: 3.0
- * WC tested up to: 9.4.2
+ * WC tested up to: 9.9.5
  * Author: Keylor Mendoza A.
  * Author URI: https://www.keylormendoza.com
  * License: GPLv2
@@ -21,7 +21,7 @@ if ( !defined( 'WPS_PLUGIN_FILE' ) ) {
 }
 
 if ( !defined( 'WPS_PLUGIN_VERSION' ) ) {
-	define( 'WPS_PLUGIN_VERSION', '1.8.9' );
+	define( 'WPS_PLUGIN_VERSION', '1.8.10' );
 }
 
 if ( !defined( 'WPS_PLUGIN_PATH' ) ) {

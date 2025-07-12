@@ -365,18 +365,30 @@ function wps_stores_filtering_by_country($country_code) {
 /**
  * Notice stores without country
  * 
- * @version 1.8.5
+ * @version 1.8.10
  * @since 1.5.24
  */
 function wps_store_country_notice() {
+	$nonce = wp_create_nonce( WPS_PLUGIN_VERSION );
 	// Update stores Country
-	if ( !empty( wps_check_stores_without_country() ) && version_compare( WPS_PLUGIN_VERSION, '1.5.24' ) >= 0 ) {
-		if ( !get_option( 'wps_countries_updated' ) ) {
+	if ( version_compare( WPS_PLUGIN_VERSION, '1.5.24' ) >= 0 ) {
+		if ( !empty( wps_check_stores_without_country() ) || !get_option( 'wps_countries_updated' ) ) {
 			?>
 			<div id="message" class="notice notice-error">
 				<p><?php
 					$id = "wc_pickup_store";
-					$update_url = sprintf(admin_url('admin.php?page=wc-settings&tab=shipping&section=%s&update_country=1'), $id);
+					$update_url = admin_url(
+						add_query_arg(
+							array(
+								'page'    => 'wc-settings',
+								'tab'     => 'shipping',
+								'section' => $id,
+								'wps_update_country' => 1,
+								'_wp_nonce' => $nonce
+							),
+							'admin.php'
+						)
+					);
 					printf(
 						/* translators: %1$s - plugin version, %2$s - plugin name, %3$s - default country, %4$s - update URL */
 						__('Since version %1$s, a new Country validation was added to %2$s. Please, update stores without country manually or use the default country %3$s %4$shere%5$s.', 'wc-pickup-store'),
@@ -397,30 +409,35 @@ add_action( 'admin_notices', 'wps_store_country_notice' );
 /**
  * Update stores without Country
  * 
- * @version 1.8.2
+ * @version 1.8.10
  * @since 1.5.25
  */
 function wps_update_stores_without_country() {
 	$stores_without_country = wps_check_stores_without_country();
 
-	if ( count( $stores_without_country ) > 0 ) {
-		if ( isset( $_GET['update_country'] ) && $_GET['update_country'] == 1 && ! get_option( 'wps_countries_updated' ) ) {
-			foreach ( $stores_without_country as $store_id => $store_data ) {
-				update_post_meta( $store_id, 'store_country', wps_get_wc_default_country() );
+	if ( isset( $_GET['wps_update_country'] ) && $_GET['wps_update_country'] == 1 ) {
+		if ( wp_verify_nonce( $_REQUEST['_wp_nonce'], WPS_PLUGIN_VERSION ) ) {
+			if ( count( $stores_without_country ) > 0 || ! get_option( 'wps_countries_updated' ) ) {
+				$default_country = wps_get_wc_default_country();
+				foreach ( $stores_without_country as $store_id => $store_data ) {
+					update_post_meta( $store_id, 'store_country', $default_country );
+				}
+				update_option( 'wps_countries_updated', 1 );
+				?>
+				<div id="message" class="notice notice-info is-dismissible">
+					<p><?php
+						printf(
+							/* translators: %1$s - plugin version, %2$s - plugin name */
+							__( 'Since version %1$s, a new Country validation was added to %2$s and all stores have been updated.', 'wc-pickup-store' ),
+							'<strong>1.5.24</strong>',
+							'<strong>WC Pickup Store</strong>'
+						);
+					?></p>
+				</div>
+				<?php
 			}
-			update_option('wps_countries_updated', 1);
-			?>
-			<div id="message" class="notice notice-info is-dismissible">
-				<p><?php
-					printf(
-						/* translators: %1$s - plugin version, %2$s - plugin name */
-						__( 'Since version %1$s, a new Country validation was added to %2$s and all stores have been updated.', 'wc-pickup-store' ),
-						'<strong>1.5.24</strong>',
-						'<strong>WC Pickup Store</strong>'
-					);
-				?></p>
-			</div>
-			<?php
+		} else {
+			wp_die( __( 'Access denied', 'wc-pickup-store' ), __( 'Access denied', 'wc-pickup-store' ) );
 		}
 	}
 }

@@ -1,10 +1,10 @@
 === WC Pickup Store ===
 Contributors: keylorcr
 Donate link: https://www.paypal.me/keylorcr
-Tags: ecommerce, e-commerce, store, local pickup, store pickup, woocommerce, local shipping, store post type, recoger en tienda
+Tags: ecommerce, e-commerce, store, local pickup, store pickup
 Requires at least: 4.7
-Tested up to: 6.7.1
-Stable tag: 1.8.9
+Tested up to: 6.8.1
+Stable tag: 1.8.10
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,10 @@ View more information about tax handling in [this documentation](https://keylorm
 
 
 == Changelog ==
+= 1.8.10 =
+* Fix: Nonce verification added to function wps_update_stores_without_country due to several vulnerability reports
+* Update: Check for compatibility with WP 6.8.1 and WC (Legacy) 9.9.5
+
 = 1.8.9 =
 * Deprecated: Function wps_show_store_in_admin from action woocommerce_admin_order_data_after_billing_address removed
 * Update: Chosen store id saved to user and order meta data in wps_store_save_order_meta
@@ -333,6 +337,9 @@ View more information about tax handling in [this documentation](https://keylorm
 
 
 == Upgrade Notice ==
+= 1.8.10 =
+* Fix: Hard fix due to several vulnerability reports
+
 = 1.8.9 =
 * New: Shipping costs by cart weight
 * New: Admin store editor in order admin page
